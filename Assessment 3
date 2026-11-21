@@ -1,0 +1,312 @@
+import random
+import time
+
+readings = [
+    round(random.uniform(0, 40), 1)
+    for _ in range(365)
+]
+
+weekly = [
+    sum(readings[i:i+7])
+    for i in range(0, len(readings), 7)
+]
+
+wettest = max(enumerate(weekly), key=lambda x: x[1])
+driest = min(enumerate(weekly), key=lambda x: x[1])
+
+dry_days = [
+    i+1 for i, value in enumerate(readings)
+    if value == 0
+]
+
+
+def moving_naive(a, window=7):
+    return [
+        sum(a[i:i+window])/window
+        for i in range(len(a)-window+1)
+    ]
+
+
+def moving_running(a, window=7):
+    if len(a) < window:
+        return []
+
+    total = sum(a[:window])
+    out = [total/window]
+
+    for i in range(window, len(a)):
+        total += a[i] - a[i-window]
+        out.append(total/window)
+
+    return out
+import copy
+
+rows, cols = 3, 4
+
+bad = [[0] * cols] * rows
+bad[0][1] = 7
+
+good = [[0 for _ in range(cols)] for _ in range(rows)]
+good[0][1] = 7
+
+print("bad :", bad)
+print("good:", good)
+
+print(bad[0] is bad[1], good[0] is good[1])
+
+
+stops = {
+    (13.0827, 80.2707): "Chennai Central",
+    (13.0418, 80.2341): "T. Nagar"
+}
+
+print(stops[(13.0418, 80.2341)])
+
+
+original = [[1, 2], [3, 4]]
+
+shallow = copy.copy(original)
+deep = copy.deepcopy(original)
+
+shallow[0][0] = 99
+deep[1][0] = 88
+
+print(original, shallow, deep)
+
+
+pair = ("route", [1, 2])
+pair[1].append(3)
+
+print(pair)
+calls = [
+    "seeds not received seeds delayed",
+    "fertiliser price high",
+    "seeds price high subsidy not received",
+]
+
+STOP = {"not", "high"}
+
+
+def frequencies(texts, stop):
+    counts = {}
+
+    for text in texts:
+        for word in text.lower().split():
+            word = word.strip(".,!?;:")
+
+            if word and word not in stop:
+                counts[word] = counts.get(word, 0) + 1
+
+    return counts
+
+
+def top(counts, k):
+    return sorted(
+        counts.items(),
+        key=lambda item: (-item[1], item[0])
+    )[:k]
+
+
+print(top(frequencies(calls, STOP), 3))
+ai = {
+    "192311001",
+    "192311004",
+    "192311007",
+    "192311009"
+}
+
+iot = {
+    "192311002",
+    "192311004",
+    "192311009",
+    "192311010"
+}
+
+all_students = {
+    f"1923110{i:02d}"
+    for i in range(1, 11)
+}
+
+both = ai & iot
+exactly_one = ai ^ iot
+neither = all_students - (ai | iot)
+
+print("clash      :", sorted(both))
+print("exactly one:", sorted(exactly_one))
+print("neither    :", sorted(neither))
+
+
+# Method version
+both2 = ai.intersection(iot)
+one2 = ai.symmetric_difference(iot)
+neither2 = all_students.difference(ai.union(iot))
+temps = [4.5, 7.0, 12.0, -60.0, 5.5, 55.0, 2.0]
+
+# for + append
+valid = []
+
+for celsius in temps:
+    if -50 <= celsius <= 50:
+        valid.append(celsius)
+
+
+# comprehension
+valid2 = [x for x in temps if -50 <= x <= 50]
+
+fahrenheit = [x * 9/5 + 32 for x in valid2]
+
+alarms = [
+    (minute, value)
+    for minute, value in enumerate(valid2)
+    if not 2 <= value <= 8
+]
+
+
+# filter + map
+valid3 = list(
+    filter(lambda x: -50 <= x <= 50, temps)
+)
+
+fahrenheit3 = list(
+    map(lambda x: x*9/5+32, valid3)
+)
+
+
+# dictionary and set comprehensions
+by_minute = {
+    i: x for i, x in enumerate(valid2)
+}
+
+alarm_values = {
+    x for x in valid2 if not 2 <= x <= 8
+}
+trains = {
+    "12601": {
+        "name": "Mail",
+        "stops": [
+            ("Chennai", "08:00", "08:10"),
+            ("Katpadi", "10:00", "10:05"),
+            ("Bengaluru", "13:00", "13:10")
+        ],
+        "days": {"Mon", "Wed", "Fri"}
+    },
+
+    "12602": {
+        "name": "Express",
+        "stops": [
+            ("Chennai", "09:00", "09:15"),
+            ("Katpadi", "11:00", "11:05")
+        ],
+        "days": {"Tue", "Thu"}
+    },
+
+    "12603": {
+        "name": "Fast",
+        "stops": [
+            ("Chennai", "07:00", "07:05"),
+            ("Katpadi", "09:00", "09:03")
+        ],
+        "days": {"Mon", "Tue", "Wed", "Thu", "Fri"}
+    },
+
+    "12604": {
+        "name": "Passenger",
+        "stops": [
+            ("Chennai", "06:00", "06:10"),
+            ("Arakkonam", "07:00", "07:02")
+        ],
+        "days": {"Sat", "Sun"}
+    },
+
+    "12605": {
+        "name": "Superfast",
+        "stops": [
+            ("Chennai", "12:00", "12:05"),
+            ("Katpadi", "14:00", "14:05")
+        ],
+        "days": {"Mon", "Fri"}
+    }
+}
+
+
+def trains_at(station, day):
+    found = []
+
+    for number, info in trains.items():
+        if day in info["days"]:
+            for stop, arrival, departure in info["stops"]:
+                if stop == station:
+                    found.append(
+                        (departure, number, info["name"])
+                    )
+
+    return sorted(found, key=lambda row: row[0])
+
+
+print(trains_at("Katpadi", "Mon"))
+def normalise_phone(phone):
+    digits = "".join(
+        ch for ch in phone if ch.isdigit()
+    )
+
+    if digits.startswith("91") and len(digits) == 12:
+        digits = digits[2:]
+
+    return digits
+
+
+def merge_contacts(contact_lists):
+    merged = {}
+
+    for source in contact_lists:
+        for contact in source:
+            phones = {
+                normalise_phone(p)
+                for p in contact.get("phones", [])
+            }
+
+            phones.discard("")
+
+            emails = {
+                e.strip().lower()
+                for e in contact.get("emails", [])
+                if e.strip()
+            }
+
+            key = next(iter(sorted(phones)), None)
+
+            if key is None:
+                key = "name:" + " ".join(
+                    contact.get("name", "").lower().split()
+                )
+
+            if key not in merged:
+                merged[key] = {
+                    "name": contact.get("name", ""),
+                    "phones": set(),
+                    "emails": set()
+                }
+
+            merged[key]["phones"].update(phones)
+            merged[key]["emails"].update(emails)
+
+    return list(merged.values())
+
+
+phone_a = [
+    {
+        "name": "Dr. Ravi",
+        "phones": ["+91 98400 12345"],
+        "emails": ["RAVI@example.com"]
+    }
+]
+
+phone_b = [
+    {
+        "name": "Ravi Kumar",
+        "phones": ["9840012345", "0441234567"],
+        "emails": ["ravi@example.com"]
+    }
+]
+
+print(merge_contacts([phone_a, phone_b]))
